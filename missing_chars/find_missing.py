@@ -41,7 +41,7 @@ logset = file_to_charset(args.input_file)
 
 logset.difference_update(fontset)
 
-for ch in logset:
+for ch in sorted(logset):
     # filter out whitespace
     if category(ch) not in excluded:
         print(f"{ch}\t{hex(ord(ch))}")
