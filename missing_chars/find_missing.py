@@ -1,10 +1,13 @@
+import unicodedata
 # Given a script log file, find characters missing from the font
 
 from argparse import ArgumentParser
-from unicodedata import category
 from pathlib import Path
+from glyph_id import char_name
 
-default_path = Path(__file__).parent.parent / "img" / "characters.txt"
+default_font_path = Path(__file__).parent.parent / "img" / "characters.txt"
+
+
 # Unicode categories excluded from search
 # (control chars, whitespace)
 excluded = {"Cc", "Cf", "Zs", "Zl", "Zc"}
@@ -30,7 +33,7 @@ parser.add_argument(
     "-c",
     "--chars",
     help="file with a list of characters in the font",
-    default=default_path,
+    default=default_font_path,
 )
 args = parser.parse_args()
 
@@ -39,9 +42,10 @@ args = parser.parse_args()
 fontset = file_to_charset(args.chars)
 logset = file_to_charset(args.input_file)
 
-logset.difference_update(fontset)
+missing = logset.difference(fontset)
 
-for ch in sorted(logset):
-    # filter out whitespace
-    if category(ch) not in excluded:
-        print(f"{ch}\t{hex(ord(ch))}")
+for char in sorted(missing):
+    if unicodedata.category(char) not in excluded:
+        code = hex(ord(char))
+        name = char_name(char)
+        print(f"{char}\t{code}\t{name}")
